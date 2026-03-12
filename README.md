@@ -64,5 +64,6 @@ npm test
 
 ---
 
-## 📜 License
-MIT License. Built with ❤️ for the TÜBİTAK Project context.
+## 📜 License & Credits
+Developed with ❤️ by **Öykü Cengiz** for the TÜBİTAK Project context.
+MIT License.
