@@ -1,25 +1,68 @@
-# 🌦️ Weather & Pollution Dashboard
+# 🌦️ SkyPulse: Modern Weather & Air Quality Dashboard
 
-A modern, full-stack dashboard built with **React** (Vite) and **Python** (FastAPI).
+![SkyPulse Mockup](./docs/mockup.png)
 
-## 🚀 Setup Instructions
+**SkyPulse** is a high-performance, aesthetically pleasing weather dashboard designed for modern users. It combines real-time weather tracking, air pollution monitoring (AQI), and 48-hour interactive forecasts in a sleek, glassmorphic interface.
 
-### 1. Backend (Python/FastAPI)
-1. cd to `backend` directory.
-2. Install dependencies: `pip install -r requirements.txt`
-3. Get an API Key from [OpenWeatherMap](https://openweathermap.org/api).
-4. Create a `.env` file from `.env.template` and add your API key.
-5. Run the server: `python main.py` (Default: http://localhost:8000)
-
-### 2. Frontend (React/Vite)
-1. cd to `frontend` directory.
-2. Install dependencies: `npm install`
-3. Run the development server: `npm run dev` (Default: http://localhost:5173)
+Designed with engineering excellence, it features custom React hooks, robust error handling, and a modular architecture.
 
 ---
 
-## ✨ Features
-*   **Real-time Weather**: Current temperature, feels like, humidity, and more.
-*   **Air Pollution (AQI)**: Detailed breakdown of PM2.5, PM10, NO2, etc.
-*   **Glassmorphic UI**: Sleek, modern design with subtle animations.
-*   **Responsive Layout**: Optimized for all screen sizes.
+## 🚀 Key Features
+
+-   **💎 Premium Glassmorphism UI**: A vibrant, responsive interface with dynamic background themes based on weather conditions (Sunny, Rainy, Cloudy, etc.).
+-   **🌬️ Air Quality Index (AQI)**: Detailed pollution monitoring including PM2.5, PM10, and health recommendations.
+-   **📈 Interactive Forecasts**: Visualized temperature trends using **Recharts** with a 48-hour hourly breakdown.
+-   **🕒 Search History**: LocalStorage-integrated "Recent Searches" for quick access to your favorite cities.
+-   **⚡ Skeleton Loading**: Shimmering loading states for a seamless user experience (no more blank flashes).
+-   **🛡️ Engineering Best Practices**:
+    -   **Custom Hooks**: Clean business logic separation via `useWeather`.
+    -   **Error Boundaries**: Graceful failure handling and user recovery.
+    -   **Unit Testing**: Core logic verified with **Vitest**.
+
+---
+
+## 🛠️ Tech Stack
+
+-   **Frontend**: React (Vite), Framer Motion, Recharts, Lucide Icons.
+-   **Backend**: Python, FastAPI, Uvicorn.
+-   **API**: OpenWeatherMap (Weather, Pollution & Forecast APIs).
+-   **Testing**: Vitest.
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Backend Setup
+```bash
+cd backend
+pip install -r requirements.txt
+# Create .env and add your OPENWEATHER_API_KEY
+python main.py
+```
+
+### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 3. Running Tests
+```bash
+cd frontend
+npm test
+```
+
+---
+
+## 📸 Interface Preview
+*Dynamic backgrounds adjust automatically:*
+- **Sunny**: Warm blue-sky gradient.
+- **Rainy**: Deep indigo rain-washed theme.
+- **Stormy**: Dark purple electrical storm aesthetic.
+
+---
+
+## 📜 License
+MIT License. Built with ❤️ for the TÜBİTAK Project context.

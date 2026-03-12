@@ -63,7 +63,7 @@ async def get_weather_data(city: str = Query(..., description="The name of the c
                 "pressure": weather_resp["main"]["pressure"]
             },
             "pollution": pollution_resp["list"][0],
-            "forecast": forecast_resp["list"][:8]
+            "forecast": forecast_resp["list"]
         }
         
         return result
