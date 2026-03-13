@@ -108,10 +108,17 @@ const App = () => {
                                             <span className="desc">{weather.current.description}</span>
                                         </div>
                                         <div className="weather-icon-lg">
-                                            <img
-                                                src={`http://openweathermap.org/img/wn/${weather.current.icon}@4x.png`}
-                                                alt="weather icon"
-                                            />
+                                            {weather.current.icon ? (
+                                                <motion.img
+                                                    initial={{ rotate: -10, scale: 0.8 }}
+                                                    animate={{ rotate: 0, scale: 1 }}
+                                                    transition={{ type: 'spring', stiffness: 100 }}
+                                                    src={`http://openweathermap.org/img/wn/${weather.current.icon}@4x.png`}
+                                                    alt="weather icon"
+                                                />
+                                            ) : (
+                                                <Sun size={120} color="#f59e0b" />
+                                            )}
                                         </div>
                                     </div>
 
