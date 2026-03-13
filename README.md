@@ -22,7 +22,7 @@ Designed with engineering excellence, it features custom React hooks, robust err
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 -   **Frontend**: React (Vite), Framer Motion, Recharts, Lucide Icons.
 -   **Backend**: Python, FastAPI, Uvicorn.
