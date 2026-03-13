@@ -70,6 +70,18 @@ async def get_weather_data(city: str = Query(..., description="The name of the c
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/reverse-geo")
+async def get_reverse_geo(lat: float, lon: float):
+    if not OPENWEATHER_API_KEY:
+        raise HTTPException(status_code=500, detail="OpenWeatherMap API Key is not configured.")
+    
+    geo_url = f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={OPENWEATHER_API_KEY}"
+    response = requests.get(geo_url)
+    if response.status_code != 200 or not response.json():
+        raise HTTPException(status_code=404, detail="Location not found.")
+    
+    return response.json()[0]
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

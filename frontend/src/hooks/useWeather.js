@@ -38,12 +38,9 @@ export const useWeather = (initialCity = 'London') => {
         setLoading(true);
         setError(null);
         try {
-            // In a real app, you'd have a separate endpoint for coords or handle it in backend
-            // For now, let's assume city search is the primary way, 
-            // but we'll simulate fetching for the user's location name
-            const geoResp = await axios.get(`http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=f57263f431ed5e3e39c84442f3b3a145`);
-            if (geoResp.data?.[0]?.name) {
-                fetchWeather(geoResp.data[0].name);
+            const geoResp = await axios.get(`${API_BASE}/reverse-geo?lat=${lat}&lon=${lon}`);
+            if (geoResp.data?.name) {
+                fetchWeather(geoResp.data.name);
             }
         } catch (err) {
             setError("Could not determine your location.");
