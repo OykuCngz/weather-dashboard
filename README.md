@@ -16,7 +16,7 @@ Designed with engineering excellence, it features custom React hooks, secured ba
 -  Automatic Geolocation**: Instant weather updates based on your current location via secure backend reverse-geocoding.
 -  Search History**: LocalStorage-integrated "Recent Searches" for quick access to your favorite cities.
 -  Skeleton Loading**: Shimmering loading states for a seamless user experience.
--  Engineering Best Practices**:
+-  Engineering Best Practices:
     - **Custom Hooks**: Clean business logic separation via `useWeather`.
     - **Backend Proxy**: Secure API key management (no keys exposed on frontend).
     - **Error Boundaries**: Graceful failure handling and user recovery.
