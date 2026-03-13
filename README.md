@@ -64,5 +64,4 @@ npm test
 
 ---
 
-Developed with ❤️ by **Öykü Cengiz** for the TÜBİTAK Project context.
-MIT License.
+
