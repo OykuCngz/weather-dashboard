@@ -1,29 +1,53 @@
-import React, { useState } from 'react';
-import {
-    Sun, Calendar,
-    Activity, MapPin, AlertCircle,
-    Navigation, Waves, Thermometer, Wind, Droplets
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// Hooks & Utils
+import { 
+    Sun, Wind, Droplets, Thermometer, MapPin, 
+    Calendar, AlertCircle, Navigation, Activity, Waves
+} from 'lucide-react';
 import { useWeather } from './hooks/useWeather';
-import { getThemeByCondition, getAqiInfo } from './utils/theme';
-
-// Components
 import SearchBar from './components/SearchBar';
 import ForecastChart from './components/ForecastChart';
-import SkeletonLoader from './components/SkeletonLoader';
 import ErrorBoundary from './components/ErrorBoundary';
+import { getThemeByCondition, getAqiInfo } from './utils/theme';
 
 import './App.css';
+
+const Sidebar = () => (
+    <div className="sidebar glass">
+        <div className="sidebar-top">
+            <div className="sidebar-logo">
+                <div className="logo-icon">⚡</div>
+            </div>
+            <nav className="nav-menu">
+                <button className="nav-item active"><Calendar size={22} /></button>
+                <button className="nav-item"><Sun size={22} /></button>
+                <button className="nav-item"><MapPin size={22} /></button>
+                <button className="nav-item"><AlertCircle size={22} /></button>
+                <button className="nav-item"><Navigation size={22} /></button>
+            </nav>
+        </div>
+        <div className="sidebar-bottom">
+            <button className="nav-item"><Waves size={22} /></button>
+            <div className="user-profile">
+                <img src="https://i.pravatar.cc/150?u=antigravity" alt="User" />
+                <div className="online-status"></div>
+            </div>
+        </div>
+    </div>
+);
 
 const App = () => {
     const {
         weather, loading, error,
-        fetchWeather, history,
-        units, setUnits
+        units, setUnits, history, fetchWeather
     } = useWeather('London');
+
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     const toggleUnits = () => setUnits(prev => prev === 'metric' ? 'imperial' : 'metric');
 
@@ -36,195 +60,163 @@ const App = () => {
 
     return (
         <ErrorBoundary>
-            <div className={`dashboard-container ${themeClass}`}>
-                <header className="header">
-                    <div className="logo-group">
-                        <motion.h1
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                        >
-                            SkyPulse
-                        </motion.h1>
-                    </div>
+            <div className={`app-layout ${themeClass}`}>
+                <Sidebar />
+                <div className="dashboard-container">
+                    <header className="header">
+                        <div className="header-left">
+                            <div className="logo-group">
+                                <motion.h1
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                >
+                                    SkyPulse
+                                </motion.h1>
+                            </div>
+                            {weather && (
+                                <div className="location-context">
+                                    <h2>{weather.location.name.toUpperCase()}, {weather.location.country}</h2>
+                                    <span>{currentTime.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })} | {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                                </div>
+                            )}
+                        </div>
 
-                    <div className="header-controls">
-                        <button className="unit-toggle glass" onClick={toggleUnits}>
-                            {units === 'metric' ? '°C' : '°F'}
-                        </button>
-                        <SearchBar
-                            onSearch={fetchWeather}
-                            history={history}
-                            loading={loading}
-                        />
-                    </div>
-                </header>
+                        <div className="header-right">
+                            <button className="header-icon-btn"><Activity size={20} /></button>
+                            <button className="header-icon-btn"><Wind size={20} /></button>
+                            <div className="search-wrapper">
+                                <SearchBar
+                                    onSearch={fetchWeather}
+                                    history={history}
+                                    loading={loading}
+                                />
+                            </div>
+                            <button className="unit-toggle" onClick={toggleUnits}>
+                                {units === 'metric' ? '°C' : '°F'}
+                            </button>
+                        </div>
+                    </header>
 
-                <main className="main-content">
-                    <AnimatePresence mode="wait">
-                        {error && (
-                            <motion.div
-                                key="error"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="error-box glass"
-                            >
-                                <AlertCircle size={32} />
-                                <p>{error}</p>
-                                <button onClick={() => fetchWeather('London')}>Back to London</button>
-                            </motion.div>
-                        )}
-
-                        {loading ? (
-                            <SkeletonLoader key="skeleton" />
-                        ) : weather ? (
-                            <motion.div
-                                key="dashboard"
-                                className="dashboard-grid"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                transition={{ duration: 0.4 }}
-                            >
-                                {/* Current Weather Card */}
-                                <div className="card-current glass">
-                                    <div className="card-header-top" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '2rem' }}>
-                                        <div className="city-info" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <MapPin size={18} />
-                                            <h2>{weather.location.name}, {weather.location.country}</h2>
-                                        </div>
-                                        <span className="date-time">
-                                            {new Date().toLocaleDateString('en-GB', {
-                                                weekday: 'long',
-                                                day: 'numeric',
-                                                month: 'short'
-                                            })}
-                                        </span>
-                                    </div>
-
-                                    <div className="weather-main">
-                                        <div className="temp-group">
-                                            <span className="temp">{convertTemp(weather.current.temp)}°</span>
-                                            <span className="desc">{weather.current.description}</span>
-                                        </div>
-                                        <div className="weather-icon-lg">
-                                            {weather.current.icon ? (
-                                                <motion.img
-                                                    initial={{ rotate: -10, scale: 0.8 }}
-                                                    animate={{ rotate: 0, scale: 1 }}
-                                                    transition={{ type: 'spring', stiffness: 100 }}
-                                                    src={`http://openweathermap.org/img/wn/${weather.current.icon}@4x.png`}
-                                                    alt="weather icon"
-                                                />
-                                            ) : (
-                                                <Sun size={120} color="#f59e0b" />
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="weather-stats">
-                                        <div className="stat-item">
-                                            <Thermometer size={20} style={{ color: '#60a5fa' }} />
-                                            <div className="stat-info">
-                                                <span>Feels Like</span>
-                                                <strong>{convertTemp(weather.current.feels_like)}°</strong>
+                    <main className="main-content">
+                        <AnimatePresence mode="wait">
+                            {loading ? (
+                                <motion.div
+                                    key="skeleton"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="dashboard-grid"
+                                >
+                                    <div className="skeleton-card weather-gradient" style={{ gridColumn: 'span 8', height: '400px' }}></div>
+                                    <div className="skeleton-card glass" style={{ gridColumn: 'span 4', height: '400px' }}></div>
+                                </motion.div>
+                            ) : weather ? (
+                                <motion.div
+                                    key="content"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    className="dashboard-grid"
+                                >
+                                    {/* Current Weather Card */}
+                                    <div className="card-current weather-gradient">
+                                        <div className="card-label">Current Weather</div>
+                                        <div className="weather-main-content">
+                                            <div className="weather-left-side">
+                                                <div className="temp-main">
+                                                    <span className="temp-val">{convertTemp(weather.current.temp)}°</span>
+                                                    {weather.current.icon && (
+                                                        <img
+                                                            src={`http://openweathermap.org/img/wn/${weather.current.icon}@4x.png`}
+                                                            alt="weather icon"
+                                                            className="main-icon"
+                                                        />
+                                                    )}
+                                                </div>
+                                                <div className="weather-desc-text">
+                                                    {weather.current.description}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="stat-item">
-                                            <Droplets size={20} style={{ color: '#60a5fa' }} />
-                                            <div className="stat-info">
-                                                <span>Humidity</span>
-                                                <strong>{weather.current.humidity}%</strong>
-                                            </div>
-                                        </div>
-                                        <div className="stat-item">
-                                            <Wind size={20} style={{ color: '#60a5fa' }} />
-                                            <div className="stat-info">
-                                                <span>Wind</span>
-                                                <strong>{weather.current.wind_speed} m/s</strong>
+                                            <div className="weather-right-side">
+                                                <div className="detail-row">
+                                                    <span>Felt like:</span>
+                                                    <strong>{convertTemp(weather.current.feels_like)}°</strong>
+                                                </div>
+                                                <div className="detail-row">
+                                                    <span>Wind:</span>
+                                                    <strong>{weather.current.wind_speed} km/h SW</strong>
+                                                </div>
+                                                <div className="detail-row">
+                                                    <span>Humidity:</span>
+                                                    <strong>{weather.current.humidity}%</strong>
+                                                </div>
+                                                <div className="detail-row">
+                                                    <span>Visibility:</span>
+                                                    <strong>{weather.current.visibility ? (weather.current.visibility / 1000).toFixed(1) : '10'} km</strong>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* Air Quality Card */}
-                                <div className="card-pollution glass">
-                                    <div className="section-header">
-                                        <Waves size={18} />
-                                        <h3>Air Quality Index</h3>
-                                    </div>
-                                    <div className="aqi-meter">
-                                        <div
-                                            className="aqi-circle"
-                                            style={{ '--aqi-color': getAqiInfo(weather.pollution.main.aqi).color }}
-                                        >
-                                            <span className="aqi-number">{weather.pollution.main.aqi}</span>
-                                            <small>AQI</small>
+                                    {/* Air Quality Card */}
+                                    <div className="card-pollution glass">
+                                        <div className="card-label">Air Quality Index</div>
+                                        <div className="aqi-meter-new">
+                                            <div className="aqi-gauge">
+                                                <svg viewBox="0 0 100 50">
+                                                    <path
+                                                        d="M 10 50 A 40 40 0 0 1 90 50"
+                                                        fill="none"
+                                                        stroke="rgba(255,255,255,0.1)"
+                                                        strokeWidth="8"
+                                                    />
+                                                    <path
+                                                        d="M 10 50 A 40 40 0 0 1 90 50"
+                                                        fill="none"
+                                                        stroke="url(#aqiGradient)"
+                                                        strokeWidth="8"
+                                                        strokeDashoffset={125.6 * (1 - (weather.pollution.main.aqi / 5))}
+                                                        strokeDasharray="125.6"
+                                                    />
+                                                    <defs>
+                                                        <linearGradient id="aqiGradient">
+                                                            <stop offset="0%" stopColor="#0ea5e9" />
+                                                            <stop offset="50%" stopColor="#22c55e" />
+                                                            <stop offset="100%" stopColor="#ef4444" />
+                                                        </linearGradient>
+                                                    </defs>
+                                                </svg>
+                                                <div className="aqi-value-center">
+                                                    <span className="aqi-num">{weather.pollution.main.aqi * 20}</span>
+                                                    <span className="aqi-text">{getAqiInfo(weather.pollution.main.aqi).label}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="aqi-status">
-                                            <h4 style={{ color: getAqiInfo(weather.pollution.main.aqi).color }}>
-                                                {getAqiInfo(weather.pollution.main.aqi).label}
-                                            </h4>
-                                            <p>{getAqiInfo(weather.pollution.main.aqi).desc}</p>
+
+                                        <div className="aqi-footer">
+                                            <div className="aqi-detail">AQI: <strong>{weather.pollution.main.aqi * 20} {getAqiInfo(weather.pollution.main.aqi).label}</strong></div>
+                                            <div className="pollutants-inline">
+                                                <span>PM2.5: <strong>{weather.pollution.components.pm2_5} μg/m³</strong></span>
+                                                <span>O₃: <strong>{weather.pollution.components.o3} ppb</strong></span>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="pollution-grid">
-                                        <div className="pollutant">
-                                            <span>PM2.5</span>
-                                            <strong>{weather.pollution.components.pm2_5}</strong>
+                                    {/* Forecast & Chart Card */}
+                                    <div className="card-forecast glass">
+                                        <div className="section-header">
+                                            <Calendar size={18} />
+                                            <h3>48-Hour Temperature Forecast</h3>
                                         </div>
-                                        <div className="pollutant">
-                                            <span>PM10</span>
-                                            <strong>{weather.pollution.components.pm10}</strong>
-                                        </div>
+                                        <ForecastChart data={weather.forecast} />
                                     </div>
-                                </div>
-
-                                {/* Forecast & Chart Card */}
-                                <div className="card-forecast glass">
-                                    <div className="section-header">
-                                        <Calendar size={18} />
-                                        <h3>48-Hour Temperature Forecast</h3>
-                                    </div>
-                                    <ForecastChart data={weather.forecast} />
-                                </div>
-
-                                {/* Additional Details */}
-                                <div className="card-details">
-                                    <div className="glass detail-card">
-                                        <Activity size={20} />
-                                        <div className="stat-info">
-                                            <span>Pressure</span>
-                                            <strong>{weather.current.pressure} hPa</strong>
-                                        </div>
-                                    </div>
-                                    <div className="glass detail-card">
-                                        <Navigation size={20} />
-                                        <div className="stat-info">
-                                            <span>Visibility</span>
-                                            <strong>{weather.current.visibility ? (weather.current.visibility / 1000).toFixed(1) : '10'} km</strong>
-                                        </div>
-                                    </div>
-                                    <div className="glass detail-card">
-                                        <Sun size={20} />
-                                        <div className="stat-info">
-                                            <span>UV Index</span>
-                                            <strong>Moderate</strong>
-                                        </div>
-                                    </div>
-                                    <div className="glass detail-card">
-                                        <Wind size={20} />
-                                        <div className="stat-info">
-                                            <span>Cloudiness</span>
-                                            <strong>{weather.current.description}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ) : null}
-                    </AnimatePresence>
-                </main>
+                                </motion.div>
+                            ) : error ? (
+                                <motion.div className="glass error-box">{error}</motion.div>
+                            ) : null}
+                        </AnimatePresence>
+                    </main>
+                </div>
             </div>
         </ErrorBoundary>
     );
