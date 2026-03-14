@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Sun, Wind, Droplets, Thermometer, MapPin, 
     Calendar, AlertCircle, Navigation, Activity, Waves,
-    Settings, X, Sunrise, Sunset, Compass
+    Settings, X, Sunrise, Sunset, Compass, User
 } from 'lucide-react';
 import { useWeather } from './hooks/useWeather';
 import SearchBar from './components/SearchBar';
@@ -29,9 +29,11 @@ const Sidebar = ({ activeTab, onTabClick, onLocationClick, onProfileClick, onMar
         </div>
         <div className="sidebar-bottom">
             <button className="nav-item" onClick={onMarineClick} title="Marine & Atmosphere"><Waves size={22} /></button>
-            <div className="user-profile" onClick={onProfileClick}>
-                <img src="https://i.pravatar.cc/150?u=antigravity" alt="User" title="Settings & Profile" style={{ cursor: 'pointer' }} />
-                <div className="online-status"></div>
+            <div className="user-profile" onClick={onProfileClick} title="Settings & Profile" style={{ cursor: 'pointer' }}>
+                <div className="guest-avatar">
+                    <User size={24} color="#94a3b8" />
+                </div>
+                <div className="online-status" style={{background: '#94a3b8'}}></div>
             </div>
         </div>
     </div>
@@ -283,9 +285,19 @@ const App = () => {
                                     </button>
                                 </div>
                                 <div className="modal-body">
-                                    <div className="settings-row">
-                                        <span className="settings-label"><img src="https://i.pravatar.cc/150?u=antigravity" alt="avatar" style={{width: 30, borderRadius: '50%'}} /> Antigravity User</span>
-                                        <span style={{color: 'green', fontSize: '14px', fontWeight: 'bold'}}>Online</span>
+                                    <div className="settings-row" style={{flexDirection: 'column', alignItems: 'flex-start', gap: '15px'}}>
+                                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
+                                            <span className="settings-label">
+                                                <div style={{width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                                    <User size={20} color="#94a3b8" />
+                                                </div> 
+                                                Misafir Kullanıcı
+                                            </span>
+                                            <span style={{color: '#94a3b8', fontSize: '14px', fontWeight: 'bold'}}>Çevrimdışı</span>
+                                        </div>
+                                        <button className="unit-toggle" style={{width: '100%', padding: '12px', background: 'var(--accent-primary)', color: 'white'}} onClick={() => alert('Hesap sistemi (Kayıt/Giriş) yakında eklenecektir!')}>
+                                            Giriş Yap / Kayıt Ol
+                                        </button>
                                     </div>
                                     <div className="settings-row">
                                         <span className="settings-label"><Thermometer size={18} /> Temperature Unit</span>
