@@ -9,11 +9,12 @@ import { useWeather } from './hooks/useWeather';
 import SearchBar from './components/SearchBar';
 import ForecastChart from './components/ForecastChart';
 import ErrorBoundary from './components/ErrorBoundary';
+import AuthModal from './components/AuthModal';
 import { getThemeByCondition, getAqiInfo } from './utils/theme';
 
 import './App.css';
 
-const Sidebar = ({ activeTab, onTabClick, onLocationClick, onProfileClick, onMarineClick }) => (
+const Sidebar = ({ activeTab, onTabClick, onLocationClick, onProfileClick, onMarineClick, user }) => (
     <div className="sidebar glass">
         <div className="sidebar-top">
             <div className="sidebar-logo">
@@ -30,10 +31,16 @@ const Sidebar = ({ activeTab, onTabClick, onLocationClick, onProfileClick, onMar
         <div className="sidebar-bottom">
             <button className="nav-item" onClick={onMarineClick} title="Marine & Atmosphere"><Waves size={22} /></button>
             <div className="user-profile" onClick={onProfileClick} title="Settings & Profile" style={{ cursor: 'pointer' }}>
-                <div className="guest-avatar">
-                    <User size={24} color="#94a3b8" />
-                </div>
-                <div className="online-status" style={{background: '#94a3b8'}}></div>
+                {user ? (
+                    <div className="guest-avatar" style={{background: 'var(--accent-primary)', color: 'white', fontWeight: 'bold', fontSize: '1.2rem'}}>
+                        {user.full_name.charAt(0).toUpperCase()}
+                    </div>
+                ) : (
+                    <div className="guest-avatar">
+                        <User size={24} color="#94a3b8" />
+                    </div>
+                )}
+                <div className="online-status" style={{background: user ? '#22c55e' : '#94a3b8'}}></div>
             </div>
         </div>
     </div>
@@ -49,6 +56,8 @@ const App = () => {
     const [activeTab, setActiveTab] = useState('current');
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [showMarineModal, setShowMarineModal] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -104,6 +113,7 @@ const App = () => {
                     onLocationClick={handleLocationClick} 
                     onProfileClick={() => setShowProfileModal(true)}
                     onMarineClick={() => setShowMarineModal(true)}
+                    user={user}
                 />
                 <div className="dashboard-container">
                     <header className="header">
@@ -288,16 +298,30 @@ const App = () => {
                                     <div className="settings-row" style={{flexDirection: 'column', alignItems: 'flex-start', gap: '15px'}}>
                                         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
                                             <span className="settings-label">
-                                                <div style={{width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                                    <User size={20} color="#94a3b8" />
-                                                </div> 
-                                                Misafir Kullanıcı
+                                                {user ? (
+                                                    <div style={{width: 36, height: 36, borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold'}}>
+                                                        {user.full_name.charAt(0).toUpperCase()}
+                                                    </div> 
+                                                ) : (
+                                                    <div style={{width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                                        <User size={20} color="#94a3b8" />
+                                                    </div>
+                                                )}
+                                                {user ? user.full_name : 'Misafir Kullanıcı'}
                                             </span>
-                                            <span style={{color: '#94a3b8', fontSize: '14px', fontWeight: 'bold'}}>Çevrimdışı</span>
+                                            <span style={{color: user ? '#22c55e' : '#94a3b8', fontSize: '14px', fontWeight: 'bold'}}>
+                                                {user ? 'Çevrimiçi' : 'Çevrimdışı'}
+                                            </span>
                                         </div>
-                                        <button className="unit-toggle" style={{width: '100%', padding: '12px', background: 'var(--accent-primary)', color: 'white'}} onClick={() => alert('Hesap sistemi (Kayıt/Giriş) yakında eklenecektir!')}>
-                                            Giriş Yap / Kayıt Ol
-                                        </button>
+                                        {user ? (
+                                            <button className="unit-toggle" style={{width: '100%', padding: '12px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)'}} onClick={() => { localStorage.removeItem('token'); setUser(null); }}>
+                                                Çıkış Yap
+                                            </button>
+                                        ) : (
+                                            <button className="unit-toggle" style={{width: '100%', padding: '12px', background: 'var(--accent-primary)', color: 'white'}} onClick={() => { setShowProfileModal(false); setShowAuthModal(true); }}>
+                                                Giriş Yap / Kayıt Ol
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="settings-row">
                                         <span className="settings-label"><Thermometer size={18} /> Temperature Unit</span>
@@ -368,6 +392,14 @@ const App = () => {
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                <AuthModal 
+                    isOpen={showAuthModal} 
+                    onClose={() => setShowAuthModal(false)} 
+                    onLoginSuccess={(userData) => {
+                        setUser(userData);
+                    }}
+                />
             </div>
         </ErrorBoundary>
     );

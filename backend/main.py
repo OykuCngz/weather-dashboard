@@ -5,7 +5,13 @@ import requests
 from dotenv import load_dotenv
 from typing import Optional
 
+from backend.database import engine, Base
+from backend import auth
+
 load_dotenv()
+
+# Create tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Weather & Pollution API Proxy")
 
@@ -16,6 +22,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth.router)
 
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
 BASE_URL = "https://api.openweathermap.org/data/2.5"

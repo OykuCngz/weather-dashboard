@@ -2,3 +2,9 @@ fastapi
 uvicorn
 requests
 python-dotenv
+sqlalchemy
+bcrypt==3.2.0
+passlib
+python-jose[cryptography]
+python-multipart
+email-validator
