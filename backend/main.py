@@ -61,7 +61,12 @@ async def get_weather_data(city: str = Query(..., description="The name of the c
                 "wind_speed": weather_resp["wind"]["speed"],
                 "description": weather_resp["weather"][0]["description"],
                 "icon": weather_resp["weather"][0]["icon"],
-                "pressure": weather_resp["main"]["pressure"]
+                "pressure": weather_resp["main"]["pressure"],
+                "visibility": weather_resp.get("visibility", 10000),
+                "sea_level": weather_resp["main"].get("sea_level", weather_resp["main"]["pressure"]),
+                "grnd_level": weather_resp["main"].get("grnd_level", weather_resp["main"]["pressure"]),
+                "sunrise": weather_resp.get("sys", {}).get("sunrise"),
+                "sunset": weather_resp.get("sys", {}).get("sunset")
             },
             "pollution": pollution_resp["list"][0],
             "forecast": forecast_resp["list"]

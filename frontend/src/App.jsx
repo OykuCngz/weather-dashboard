@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Sun, Wind, Droplets, Thermometer, MapPin, 
-    Calendar, AlertCircle, Navigation, Activity, Waves
+    Calendar, AlertCircle, Navigation, Activity, Waves,
+    Settings, X, Sunrise, Sunset, Compass
 } from 'lucide-react';
 import { useWeather } from './hooks/useWeather';
 import SearchBar from './components/SearchBar';
@@ -12,7 +13,7 @@ import { getThemeByCondition, getAqiInfo } from './utils/theme';
 
 import './App.css';
 
-const Sidebar = ({ activeTab, onTabClick, onLocationClick }) => (
+const Sidebar = ({ activeTab, onTabClick, onLocationClick, onProfileClick, onMarineClick }) => (
     <div className="sidebar glass">
         <div className="sidebar-top">
             <div className="sidebar-logo">
@@ -27,9 +28,9 @@ const Sidebar = ({ activeTab, onTabClick, onLocationClick }) => (
             </nav>
         </div>
         <div className="sidebar-bottom">
-            <button className="nav-item" onClick={() => alert("Marine details coming soon!")} title="Marine conditions"><Waves size={22} /></button>
-            <div className="user-profile">
-                <img src="https://i.pravatar.cc/150?u=antigravity" alt="User" title="User Profile" style={{ cursor: 'pointer' }} onClick={() => alert("Profile settings coming soon!")} />
+            <button className="nav-item" onClick={onMarineClick} title="Marine & Atmosphere"><Waves size={22} /></button>
+            <div className="user-profile" onClick={onProfileClick}>
+                <img src="https://i.pravatar.cc/150?u=antigravity" alt="User" title="Settings & Profile" style={{ cursor: 'pointer' }} />
                 <div className="online-status"></div>
             </div>
         </div>
@@ -44,6 +45,8 @@ const App = () => {
 
     const [currentTime, setCurrentTime] = useState(new Date());
     const [activeTab, setActiveTab] = useState('current');
+    const [showProfileModal, setShowProfileModal] = useState(false);
+    const [showMarineModal, setShowMarineModal] = useState(false);
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -93,7 +96,13 @@ const App = () => {
     return (
         <ErrorBoundary>
             <div className={`app-layout ${themeClass}`}>
-                <Sidebar activeTab={activeTab} onTabClick={scrollToSection} onLocationClick={handleLocationClick} />
+                <Sidebar 
+                    activeTab={activeTab} 
+                    onTabClick={scrollToSection} 
+                    onLocationClick={handleLocationClick} 
+                    onProfileClick={() => setShowProfileModal(true)}
+                    onMarineClick={() => setShowMarineModal(true)}
+                />
                 <div className="dashboard-container">
                     <header className="header">
                         <div className="header-left">
@@ -249,6 +258,104 @@ const App = () => {
                         </AnimatePresence>
                     </main>
                 </div>
+
+                {/* Profile / Settings Modal */}
+                <AnimatePresence>
+                    {showProfileModal && (
+                        <motion.div 
+                            className="modal-overlay"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowProfileModal(false)}
+                        >
+                            <motion.div 
+                                className="modal-content"
+                                initial={{ scale: 0.9, y: 20 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.95, y: 10 }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="modal-header">
+                                    <h2><Settings size={24} color="var(--accent-primary)" /> Settings</h2>
+                                    <button className="modal-close" onClick={() => setShowProfileModal(false)}>
+                                        <X size={20} />
+                                    </button>
+                                </div>
+                                <div className="modal-body">
+                                    <div className="settings-row">
+                                        <span className="settings-label"><img src="https://i.pravatar.cc/150?u=antigravity" alt="avatar" style={{width: 30, borderRadius: '50%'}} /> Antigravity User</span>
+                                        <span style={{color: 'green', fontSize: '14px', fontWeight: 'bold'}}>Online</span>
+                                    </div>
+                                    <div className="settings-row">
+                                        <span className="settings-label"><Thermometer size={18} /> Temperature Unit</span>
+                                        <button className="unit-toggle" onClick={toggleUnits}>
+                                            {units === 'metric' ? 'Switch to °F' : 'Switch to °C'}
+                                        </button>
+                                    </div>
+                                    <div className="settings-row">
+                                        <span className="settings-label"><Activity size={18} /> API Performance</span>
+                                        <strong style={{color: 'var(--accent-primary)'}}>Excellent</strong>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Marine & Atmosphere Modal */}
+                <AnimatePresence>
+                    {showMarineModal && weather && (
+                        <motion.div 
+                            className="modal-overlay"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowMarineModal(false)}
+                        >
+                            <motion.div 
+                                className="modal-content"
+                                initial={{ scale: 0.9, y: 20 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.95, y: 10 }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="modal-header">
+                                    <h2><Waves size={24} color="var(--accent-primary)" /> Marine & Geo</h2>
+                                    <button className="modal-close" onClick={() => setShowMarineModal(false)}>
+                                        <X size={20} />
+                                    </button>
+                                </div>
+                                <div className="modal-body">
+                                    {weather.current.sea_level && (
+                                        <div className="marine-stat">
+                                            <span className="marine-icon"><Waves size={22} /> Sea Level</span>
+                                            <span className="marine-value">{weather.current.sea_level} hPa</span>
+                                        </div>
+                                    )}
+                                    {weather.current.grnd_level && (
+                                        <div className="marine-stat">
+                                            <span className="marine-icon"><Compass size={22} /> Ground Level</span>
+                                            <span className="marine-value">{weather.current.grnd_level} hPa</span>
+                                        </div>
+                                    )}
+                                    {weather.current.sunrise && (
+                                        <div className="marine-stat">
+                                            <span className="marine-icon"><Sunrise size={22} /> Sunrise</span>
+                                            <span className="marine-value">{getCityTime(new Date(weather.current.sunrise * 1000), weather.location.timezone).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}</span>
+                                        </div>
+                                    )}
+                                    {weather.current.sunset && (
+                                        <div className="marine-stat">
+                                            <span className="marine-icon"><Sunset size={22} /> Sunset</span>
+                                            <span className="marine-value">{getCityTime(new Date(weather.current.sunset * 1000), weather.location.timezone).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </ErrorBoundary>
     );
