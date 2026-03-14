@@ -228,7 +228,7 @@ const App = () => {
                                                         fill="none"
                                                         stroke="url(#aqiGradient)"
                                                         strokeWidth="8"
-                                                        strokeDashoffset={125.6 * (1 - (weather.pollution.main.aqi / 5))}
+                                                        strokeDashoffset={125.6 * (1 - (getAqiInfo(weather.pollution.main.aqi, weather.pollution.components.pm2_5).index / 500))}
                                                         strokeDasharray="125.6"
                                                     />
                                                     <defs>
@@ -240,14 +240,14 @@ const App = () => {
                                                     </defs>
                                                 </svg>
                                                 <div className="aqi-value-center">
-                                                    <span className="aqi-num">{weather.pollution.main.aqi * 20}</span>
-                                                    <span className="aqi-text">{getAqiInfo(weather.pollution.main.aqi).label}</span>
+                                                    <span className="aqi-num">{getAqiInfo(weather.pollution.main.aqi, weather.pollution.components.pm2_5).index}</span>
+                                                    <span className="aqi-text">{getAqiInfo(weather.pollution.main.aqi, weather.pollution.components.pm2_5).label}</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="aqi-footer">
-                                            <div className="aqi-detail">AQI: <strong>{weather.pollution.main.aqi * 20} {getAqiInfo(weather.pollution.main.aqi).label}</strong></div>
+                                            <div className="aqi-detail">AQI: <strong>{getAqiInfo(weather.pollution.main.aqi, weather.pollution.components.pm2_5).index} {getAqiInfo(weather.pollution.main.aqi).label}</strong></div>
                                             <div className="pollutants-inline">
                                                 <span>PM2.5: <strong>{weather.pollution.components.pm2_5} μg/m³</strong></span>
                                                 <span>O₃: <strong>{weather.pollution.components.o3} ppb</strong></span>
