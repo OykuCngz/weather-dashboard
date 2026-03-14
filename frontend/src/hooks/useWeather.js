@@ -61,5 +61,5 @@ export const useWeather = (initialCity = 'London') => {
         }
     }, []); // Only on mount
 
-    return { weather, loading, error, fetchWeather, history, units, setUnits };
+    return { weather, loading, error, fetchWeather, fetchByCoords, history, units, setUnits };
 };

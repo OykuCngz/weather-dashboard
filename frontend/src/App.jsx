@@ -12,24 +12,24 @@ import { getThemeByCondition, getAqiInfo } from './utils/theme';
 
 import './App.css';
 
-const Sidebar = () => (
+const Sidebar = ({ activeTab, onTabClick, onLocationClick }) => (
     <div className="sidebar glass">
         <div className="sidebar-top">
             <div className="sidebar-logo">
                 <div className="logo-icon">⚡</div>
             </div>
             <nav className="nav-menu">
-                <button className="nav-item active"><Calendar size={22} /></button>
-                <button className="nav-item"><Sun size={22} /></button>
-                <button className="nav-item"><MapPin size={22} /></button>
-                <button className="nav-item"><AlertCircle size={22} /></button>
-                <button className="nav-item"><Navigation size={22} /></button>
+                <button onClick={() => onTabClick('forecast')} className={`nav-item ${activeTab === 'forecast' ? 'active' : ''}`} title="Forecast"><Calendar size={22} /></button>
+                <button onClick={() => onTabClick('current')} className={`nav-item ${activeTab === 'current' ? 'active' : ''}`} title="Current Weather"><Sun size={22} /></button>
+                <button onClick={() => onTabClick('search')} className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} title="Search Location"><MapPin size={22} /></button>
+                <button onClick={() => onTabClick('aqi')} className={`nav-item ${activeTab === 'aqi' ? 'active' : ''}`} title="Air Quality"><AlertCircle size={22} /></button>
+                <button onClick={onLocationClick} className="nav-item" title="My Location"><Navigation size={22} /></button>
             </nav>
         </div>
         <div className="sidebar-bottom">
-            <button className="nav-item"><Waves size={22} /></button>
+            <button className="nav-item" onClick={() => alert("Marine details coming soon!")} title="Marine conditions"><Waves size={22} /></button>
             <div className="user-profile">
-                <img src="https://i.pravatar.cc/150?u=antigravity" alt="User" />
+                <img src="https://i.pravatar.cc/150?u=antigravity" alt="User" title="User Profile" style={{ cursor: 'pointer' }} onClick={() => alert("Profile settings coming soon!")} />
                 <div className="online-status"></div>
             </div>
         </div>
@@ -39,10 +39,11 @@ const Sidebar = () => (
 const App = () => {
     const {
         weather, loading, error,
-        units, setUnits, history, fetchWeather
+        units, setUnits, history, fetchWeather, fetchByCoords
     } = useWeather('London');
 
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [activeTab, setActiveTab] = useState('current');
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -51,9 +52,40 @@ const App = () => {
 
     const toggleUnits = () => setUnits(prev => prev === 'metric' ? 'imperial' : 'metric');
 
+    const getCityTime = (date, offset) => {
+        const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+        return new Date(utc + (1000 * offset));
+    };
+
+    const displayTime = weather ? getCityTime(currentTime, weather.location.timezone) : currentTime;
+
     const convertTemp = (temp) => {
         if (units === 'metric') return Math.round(temp);
         return Math.round((temp * 9 / 5) + 32);
+    };
+
+    const scrollToSection = (id) => {
+        setActiveTab(id);
+        if (id === 'search') {
+            const searchInput = document.querySelector('.search-inner input');
+            if (searchInput) searchInput.focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        const el = document.getElementById(id);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+
+    const handleLocationClick = () => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                fetchByCoords(pos.coords.latitude, pos.coords.longitude);
+            }, () => {
+                alert("Location permission denied or unavailable.");
+            });
+        }
     };
 
     const themeClass = weather ? getThemeByCondition(weather.current.description) : 'theme-default';
@@ -61,7 +93,7 @@ const App = () => {
     return (
         <ErrorBoundary>
             <div className={`app-layout ${themeClass}`}>
-                <Sidebar />
+                <Sidebar activeTab={activeTab} onTabClick={scrollToSection} onLocationClick={handleLocationClick} />
                 <div className="dashboard-container">
                     <header className="header">
                         <div className="header-left">
@@ -76,15 +108,15 @@ const App = () => {
                             {weather && (
                                 <div className="location-context">
                                     <h2>{weather.location.name.toUpperCase()}, {weather.location.country}</h2>
-                                    <span>{currentTime.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })} | {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                                    <span>{displayTime.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })} | {displayTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                                 </div>
                             )}
                         </div>
 
                         <div className="header-right">
-                            <button className="header-icon-btn"><Activity size={20} /></button>
-                            <button className="header-icon-btn"><Wind size={20} /></button>
-                            <div className="search-wrapper">
+                            <button onClick={() => scrollToSection('aqi')} className="header-icon-btn" title="Air Quality Details"><Activity size={20} /></button>
+                            <button onClick={() => scrollToSection('current')} className="header-icon-btn" title="Wind Details"><Wind size={20} /></button>
+                            <div className="search-wrapper" id="search">
                                 <SearchBar
                                     onSearch={fetchWeather}
                                     history={history}
@@ -119,7 +151,7 @@ const App = () => {
                                     className="dashboard-grid"
                                 >
                                     {/* Current Weather Card */}
-                                    <div className="card-current weather-gradient">
+                                    <div className="card-current weather-gradient" id="current">
                                         <div className="card-label">Current Weather</div>
                                         <div className="weather-main-content">
                                             <div className="weather-left-side">
@@ -159,7 +191,7 @@ const App = () => {
                                     </div>
 
                                     {/* Air Quality Card */}
-                                    <div className="card-pollution glass">
+                                    <div className="card-pollution glass" id="aqi">
                                         <div className="card-label">Air Quality Index</div>
                                         <div className="aqi-meter-new">
                                             <div className="aqi-gauge">
@@ -203,7 +235,7 @@ const App = () => {
                                     </div>
 
                                     {/* Forecast & Chart Card */}
-                                    <div className="card-forecast glass">
+                                    <div className="card-forecast glass" id="forecast">
                                         <div className="section-header">
                                             <Calendar size={18} />
                                             <h3>48-Hour Temperature Forecast</h3>

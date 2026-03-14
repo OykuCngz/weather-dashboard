@@ -51,7 +51,8 @@ async def get_weather_data(city: str = Query(..., description="The name of the c
                 "state": state,
                 "country": country,
                 "lat": lat,
-                "lon": lon
+                "lon": lon,
+                "timezone": weather_resp.get("timezone", 0)
             },
             "current": {
                 "temp": weather_resp["main"]["temp"],
@@ -84,4 +85,4 @@ async def get_reverse_geo(lat: float, lon: float):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
