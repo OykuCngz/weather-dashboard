@@ -135,8 +135,8 @@ const App = () => {
                         </div>
 
                         <div className="header-right">
-                            <button onClick={() => scrollToSection('aqi')} className="header-icon-btn" title="Air Quality Details"><Activity size={20} /></button>
-                            <button onClick={() => scrollToSection('current')} className="header-icon-btn" title="Wind Details"><Wind size={20} /></button>
+                            <button onClick={() => scrollToSection('aqi')} className="header-icon-btn" title="Air Quality Details"><Activity strokeWidth={2} size={22} /></button>
+                            <button onClick={() => scrollToSection('current')} className="header-icon-btn" title="Current Weather"><Sun strokeWidth={2} size={22} /></button>
                             <div className="search-wrapper" id="search">
                                 <SearchBar
                                     onSearch={fetchWeather}
